@@ -6,10 +6,15 @@
     command:
         - python research/deeplab/mask_to_grayscale.py
     inputs:
-      - name: RGB Masks folder
-      - name: class index file
-      - name: metadata filepath
-      - name: Output Directory
+      - name: RGB-Masks-folder
+        default: azure://sampledata/rgbmasksfolder/*
+        keep-directories: suffix
+      - name: class-index-file
+        default: azure://sampledata/
+      - name: metadata-filepath
+        default: azure://sampledata/
+      - name: Output-Directory
+        default: azure://sampledata/OutputDir/
 - step:
     name: Load data and convert
     description: Converts ADE20K data to TFRecord file format with Example protos
