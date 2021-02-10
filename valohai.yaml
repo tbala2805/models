@@ -1,0 +1,79 @@
+---
+
+- step:
+    name: Load data and convert
+    description: Converts ADE20K data to TFRecord file format with Example protos
+    image: tensorflow/tensorflow:1.15.4-gpu-py3
+    command:
+        - python research/deeplab/datasets/build_ade20k_data.py
+    inputs:
+      - name: ADE20K
+        default: azure://tcsvalohai/deeplab/data/01ERE/01EREM82KQF8DNWGJT3GNM3Q35/upload/ADEChallengeData2016.zip
+- step:
+    name: Train DeepLab model
+    image: tensorflow/tensorflow:1.15.4-gpu-py3
+    command:
+        - export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/research/slim:`pwd`/research
+        - pip install -r requirements.txt
+        - unzip /valohai/inputs/tfrecords/tfrecords.zip -d /valohai/inputs/tfrecords
+        - python research/deeplab/train.py --atrous_rates=6 --atrous_rates=12 --atrous_rates=18 {parameters}
+    inputs:
+      - name: tfrecords
+        default: azure://tcsvalohai/deeplab/data/01ERE/01EREM82KQF8DNWGJT3GNM3Q35/upload/tfrecords.zip
+    parameters:
+      - name: logtostderr
+        type: flag
+        default: True
+        pass-as: --logtostderr={v}
+      - name: training_number_of_steps
+        type: integer
+        default: 150000
+        description: "The number of steps used for training"
+      - name: train_split
+        type: string
+        default: "train"
+        description: "Which split of the dataset to be used for training"
+      - name: model_variant
+        type: string
+        default: "xception_65"
+      - name: output_stride
+        type: integer
+        default: 16
+      - name: decoder_output_stride
+        type: integer
+        default: 4
+      - name: train_crop_size
+        type: string
+        default: "513,513"
+        description: "Image crop size [height, width] during training."
+      - name: train_batch_size
+        type: integer
+        default: 4
+        description: "The number of images in each batch during training."
+      - name: min_resize_value
+        type: integer
+        default: 513
+      - name: max_resize_value
+        type: integer
+        default: 513
+      - name: resize_factor
+        type: integer
+        default: 16
+      - name: dataset
+        type: string
+        default: "ade20k"
+        description: "Name of the segmentation dataset."
+      - name: train_logdir
+        type: string
+        default: "/valohai/repository/trainlog/"
+- pipeline:
+    name: Convert and train
+    nodes:
+      - name: load-node
+        type: execution
+        step: Load data and convert
+      - name: train-node
+        type: execution
+        step: Train DeepLab model
+    edges:
+      - [load-node.output.tfrecords.zip, train-node.input.tfrecords]
