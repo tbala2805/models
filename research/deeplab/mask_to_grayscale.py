@@ -125,10 +125,10 @@ def create_segmentation(rgb_images_dir, class_index_file, img_output_dir , metad
     # entry["message"] = 'labels and corresponding label ids {}'.format(index_scale_dict)  # LoggerManipulationMessage
     # log.info(entry)
 
-rgb_images_dir = os.path.join(VH_INPUTS_DIR, 'RGB Masks folder')
-class_index_file = os.path.join(VH_INPUTS_DIR, 'class index file')
-metadata_file_path = os.path.join(VH_INPUTS_DIR, 'metadata filepath')
-img_output_dir = os.path.join(VH_OUTPUTS_DIR, 'Output Directory')
+rgb_images_dir = os.path.join(VH_INPUTS_DIR, 'RGB-Masks-folder')
+class_index_file = os.path.join(VH_INPUTS_DIR, 'class-index-file', 'class_index_file.txt')
+metadata_file_path = os.path.join(VH_INPUTS_DIR, 'metadat.json')
+img_output_dir = os.path.join(VH_OUTPUTS_DIR, 'Output-Directory')
 
 import time 
 startTime = time.perf_counter()
