@@ -15,7 +15,8 @@ import json
 import os
 
 import sys
-
+VH_INPUTS_DIR = os.getenv('VH_INPUTS_DIR')
+VH_OUTPUTS_DIR = os.getenv('VH_OUTPUTS_DIR')
 
 def mFileListPNG(vPathOfFile):
     """This section is created in fetching only .png files """
@@ -124,10 +125,10 @@ def create_segmentation(rgb_images_dir, class_index_file, img_output_dir , metad
     # entry["message"] = 'labels and corresponding label ids {}'.format(index_scale_dict)  # LoggerManipulationMessage
     # log.info(entry)
 
-rgb_images_dir = '/content/RGB PNG Masks'
-class_index_file = '/content/class_index.txt'
-img_output_dir = '/content/img_output'
-metadata_file_path = '/content/Metadata.json'
+rgb_images_dir = os.path.join(VH_INPUTS_DIR, 'RGB Masks folder')
+class_index_file = os.path.join(VH_INPUTS_DIR, 'class index file')
+img_output_dir = os.path.join(VH_INPUTS_DIR, 'metadata filepath')
+metadata_file_path = os.path.join(VH_OUTPUTS_DIR, 'Output Directory')
 
 import time 
 startTime = time.perf_counter()
