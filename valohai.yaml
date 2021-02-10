@@ -17,10 +17,10 @@
         default: azure://sampledata/OutputDir/
 - step:
     name: Load data and convert
-    description: Converts ADE20K data to TFRecord file format with Example protos
+    description: Converts data to TFRecord file format with Example protos
     image: tensorflow/tensorflow:1.15.4-gpu-py3
     command:
-        - python research/deeplab/datasets/build_ade20k_data.py
+        - python research/deeplab/datasets/build_voc2012_data.py
     inputs:
       - name: Label-Folder
         default: azure://sampledata/rgbmasksfolder/*
@@ -83,7 +83,7 @@
         default: 16
       - name: dataset
         type: string
-        default: "ade20k"
+        default: "pascal_voc_seg"
         description: "Name of the segmentation dataset."
       - name: train_logdir
         type: string
