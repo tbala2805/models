@@ -60,33 +60,40 @@ import sys
 import build_data
 from six.moves import range
 import tensorflow as tf
+import zipfile
+from zipfile import ZipFile
+# FLAGS = tf.app.flags.FLAGS
+VH_INPUTS_DIR = os.getenv('VH_INPUTS_DIR')
+VH_OUTPUTS_DIR = os.getenv('VH_OUTPUTS_DIR')
 
-FLAGS = tf.app.flags.FLAGS
+# tf.app.flags.DEFINE_string('image_folder',
+#                            './VOCdevkit/VOC2012/JPEGImages',
+#                            'Folder containing images.')
 
-tf.app.flags.DEFINE_string('image_folder',
-                           './VOCdevkit/VOC2012/JPEGImages',
-                           'Folder containing images.')
+# tf.app.flags.DEFINE_string(
+#     'semantic_segmentation_folder',
+#     './VOCdevkit/VOC2012/SegmentationClassRaw',
+#     'Folder containing semantic segmentation annotations.')
 
-tf.app.flags.DEFINE_string(
-    'semantic_segmentation_folder',
-    './VOCdevkit/VOC2012/SegmentationClassRaw',
-    'Folder containing semantic segmentation annotations.')
+# tf.app.flags.DEFINE_string(
+#     'list_folder',
+#     './VOCdevkit/VOC2012/ImageSets/Segmentation',
+#     'Folder containing lists for training and validation')
 
-tf.app.flags.DEFINE_string(
-    'list_folder',
-    './VOCdevkit/VOC2012/ImageSets/Segmentation',
-    'Folder containing lists for training and validation')
+# tf.app.flags.DEFINE_string(
+#     'output_dir',
+#     './tfrecord',
+#     'Path to save converted SSTable of TensorFlow examples.')
 
-tf.app.flags.DEFINE_string(
-    'output_dir',
-    './tfrecord',
-    'Path to save converted SSTable of TensorFlow examples.')
+image_folder = os.path.join(VH_INPUTS_DIR, 'Image-Folder')
+semantic_segmentation_folder = os.path.join(VH_INPUTS_DIR, 'Label-Folder')
+list_folder = os.path.join(VH_INPUTS_DIR, 'Split-Folder')
 
 
 _NUM_SHARDS = 4
 
 
-def _convert_dataset(dataset_split):
+def _convert_dataset(dataset_split, zipObj):
   """Converts the specified dataset split to TFRecord format.
 
   Args:
@@ -105,9 +112,7 @@ def _convert_dataset(dataset_split):
   label_reader = build_data.ImageReader('png', channels=1)
 
   for shard_id in range(_NUM_SHARDS):
-    output_filename = os.path.join(
-        FLAGS.output_dir,
-        '%s-%05d-of-%05d.tfrecord' % (dataset, shard_id, _NUM_SHARDS))
+    output_filename = '%s-%05d-of-%05d.tfrecord' % (dataset, shard_id, _NUM_SHARDS)
     with tf.python_io.TFRecordWriter(output_filename) as tfrecord_writer:
       start_idx = shard_id * num_per_shard
       end_idx = min((shard_id + 1) * num_per_shard, num_images)
@@ -117,12 +122,12 @@ def _convert_dataset(dataset_split):
         sys.stdout.flush()
         # Read the image.
         image_filename = os.path.join(
-            FLAGS.image_folder, filenames[i] + '.' + FLAGS.image_format)
+            image_folder, filenames[i] + '.' + FLAGS.image_format)
         image_data = tf.gfile.GFile(image_filename, 'rb').read()
         height, width = image_reader.read_image_dims(image_data)
         # Read the semantic segmentation annotation.
         seg_filename = os.path.join(
-            FLAGS.semantic_segmentation_folder,
+            semantic_segmentation_folder,
             filenames[i] + '.' + FLAGS.label_format)
         seg_data = tf.gfile.GFile(seg_filename, 'rb').read()
         seg_height, seg_width = label_reader.read_image_dims(seg_data)
@@ -133,13 +138,15 @@ def _convert_dataset(dataset_split):
             image_data, filenames[i], height, width, seg_data)
         tfrecord_writer.write(example.SerializeToString())
     sys.stdout.write('\n')
+    zipObj.write(output_filename)
     sys.stdout.flush()
 
 
 def main(unused_argv):
-  dataset_splits = tf.gfile.Glob(os.path.join(FLAGS.list_folder, '*.txt'))
+  zipObj = ZipFile(os.path.join(VH_OUTPUTS_DIR, 'tfrecords.zip'), 'w')
+  dataset_splits = tf.gfile.Glob(os.path.join(list_folder, '*.txt'))
   for dataset_split in dataset_splits:
-    _convert_dataset(dataset_split)
+    _convert_dataset(dataset_split, zipObj)
 
 
 if __name__ == '__main__':
