@@ -1,5 +1,15 @@
 ---
-
+- step:
+    name: Convert Mask to GrayScale
+    description: Converts Mask Images to Grayscale
+    image: tensorflow/tensorflow:1.15.4-gpu-py3
+    command:
+        - python research/deeplab/mask_to_grayscale.py
+    inputs:
+      - name: RGB Masks folder
+      - name: class index file
+      - name: metadata filepath
+      - name: Output Directory
 - step:
     name: Load data and convert
     description: Converts ADE20K data to TFRecord file format with Example protos
