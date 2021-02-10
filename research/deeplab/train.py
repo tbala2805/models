@@ -30,10 +30,20 @@ from deeplab import model
 from deeplab.datasets import data_generator
 from deeplab.utils import train_utils
 from deployment import model_deploy
+from tensorflow.core.protobuf import config_pb2
+from tensorflow.python.client import timeline
+from tensorflow.python.lib.io import file_io
+from tensorflow.python.platform import tf_logging as logging
+import time
+import os
+import json
 
 slim = tf.contrib.slim
 flags = tf.app.flags
 FLAGS = flags.FLAGS
+
+INPUTS_DIR = os.getenv('VH_INPUTS_DIR', None)
+OUTPUTS_DIR = os.getenv('VH_OUTPUTS_DIR', ".valohai/repository/trainlog")
 
 # Settings for multi-GPUs/multi-replicas training.
 
@@ -57,7 +67,7 @@ flags.DEFINE_integer('task', 0, 'The task ID.')
 
 # Settings for logging.
 
-flags.DEFINE_string('train_logdir', None,
+flags.DEFINE_string('train_logdir', OUTPUTS_DIR,
                     'Where the checkpoint and logs are stored.')
 
 flags.DEFINE_integer('log_steps', 10,
@@ -215,7 +225,7 @@ flags.DEFINE_string('dataset', 'pascal_voc_seg',
 flags.DEFINE_string('train_split', 'train',
                     'Which split of the dataset to be used for training')
 
-flags.DEFINE_string('dataset_dir', None, 'Where the dataset reside.')
+flags.DEFINE_string('dataset_dir', os.path.join(INPUTS_DIR, 'tfrecords'), 'Where the dataset reside.')
 
 
 def _build_deeplab(iterator, outputs_to_num_classes, ignore_label):
@@ -269,6 +279,63 @@ def _build_deeplab(iterator, outputs_to_num_classes, ignore_label):
         top_k_percent_pixels=FLAGS.top_k_percent_pixels,
         scope=output)
 
+    
+def train_step(sess, train_op, global_step, train_step_kwargs):
+  """Function that takes a gradient step and specifies whether to stop.
+  Args:
+    sess: The current session.
+    train_op: An `Operation` that evaluates the gradients and returns the total
+      loss.
+    global_step: A `Tensor` representing the global training step.
+    train_step_kwargs: A dictionary of keyword arguments.
+  Returns:
+    The total loss and a boolean indicating whether or not to stop training.
+  Raises:
+    ValueError: if 'should_trace' is in `train_step_kwargs` but `logdir` is not.
+  """
+  start_time = time.time()
+
+  trace_run_options = None
+  run_metadata = None
+  if 'should_trace' in train_step_kwargs:
+    if 'logdir' not in train_step_kwargs:
+      raise ValueError('logdir must be present in train_step_kwargs when '
+                       'should_trace is present')
+    if sess.run(train_step_kwargs['should_trace']):
+      trace_run_options = config_pb2.RunOptions(
+          trace_level=config_pb2.RunOptions.FULL_TRACE)
+      run_metadata = config_pb2.RunMetadata()
+
+  total_loss, np_global_step = sess.run([train_op, global_step],
+                                        options=trace_run_options,
+                                        run_metadata=run_metadata)
+  time_elapsed = time.time() - start_time
+
+  if run_metadata is not None:
+    tl = timeline.Timeline(run_metadata.step_stats)
+    trace = tl.generate_chrome_trace_format()
+    trace_filename = os.path.join(train_step_kwargs['logdir'],
+                                  'tf_trace-%d.json' % np_global_step)
+    logging.info('Writing trace to %s', trace_filename)
+    file_io.write_string_to_file(trace_filename, trace)
+    if 'summary_writer' in train_step_kwargs:
+      train_step_kwargs['summary_writer'].add_run_metadata(
+          run_metadata, 'run_metadata-%d' % np_global_step)
+
+  if 'should_log' in train_step_kwargs:
+    if sess.run(train_step_kwargs['should_log']):
+      print(json.dumps({
+        "step": str(np_global_step),
+        "loss": str(total_loss)
+      }))
+      logging.info('global step %d: loss = %.4f (%.3f sec/step)', np_global_step, total_loss, time_elapsed)
+
+  if 'should_stop' in train_step_kwargs:
+    should_stop = sess.run(train_step_kwargs['should_stop'])
+  else:
+    should_stop = False
+
+  return total_loss, should_stop
 
 def main(unused_argv):
   tf.logging.set_verbosity(tf.logging.INFO)
@@ -445,6 +512,7 @@ def main(unused_argv):
 
       slim.learning.train(
           train_tensor,
+          train_step_fn=train_step,
           logdir=FLAGS.train_logdir,
           log_every_n_steps=FLAGS.log_steps,
           master=FLAGS.master,
