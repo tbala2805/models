@@ -62,7 +62,7 @@ from six.moves import range
 import tensorflow as tf
 import zipfile
 from zipfile import ZipFile
-# FLAGS = tf.app.flags.FLAGS
+FLAGS = tf.app.flags.FLAGS
 VH_INPUTS_DIR = os.getenv('VH_INPUTS_DIR')
 VH_OUTPUTS_DIR = os.getenv('VH_OUTPUTS_DIR')
 
