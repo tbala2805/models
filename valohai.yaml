@@ -4,6 +4,9 @@
     description: Converts Mask Images to Grayscale
     image: tensorflow/tensorflow:1.15.4-gpu-py3
     command:
+        - apt-get update
+        - apt-get install ffmpeg libsm6 libxext6 -y
+        - pip install opencv-python
         - python research/deeplab/mask_to_grayscale.py
     inputs:
       - name: RGB-Masks-folder
