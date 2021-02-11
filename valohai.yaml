@@ -14,7 +14,8 @@
       - name: metadata-filepath
         default: azure://sampledata/
       - name: Output-Directory
-        default: azure://sampledata/OutputDir/
+        default: azure://sampledata/OutputDir/*
+        keep-directories: suffix
 - step:
     name: Load data and convert
     description: Converts data to TFRecord file format with Example protos
