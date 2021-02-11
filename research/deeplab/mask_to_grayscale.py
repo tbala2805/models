@@ -65,7 +65,7 @@ def m_create_segmentation(rgb_masks_directory, output_masks_directory, colours_d
                     new_image[x][y] = index_colour
 
         
-        
+        print(output_image_path)
         cv2.imwrite(output_image_path,new_image)
 
 
