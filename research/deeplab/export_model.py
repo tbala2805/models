@@ -61,7 +61,7 @@ flags.DEFINE_integer(
 
 flags.DEFINE_bool('save_inference_graph', False,
                   'Save inference graph in text proto.')
-crop_size = [int(x) for x in FLAGS.crop_size.split(',')]
+crop_size = [int(x) for x in FLAGS.crop_size]   #.split(',')
 # FLAGS.crop_size = FLAGS.crop_size.split(",")
 # print("**********************************")
 # print(FLAGS.crop_size, type(FLAGS.crop_size))
