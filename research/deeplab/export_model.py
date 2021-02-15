@@ -26,12 +26,12 @@ from deeplab import model
 
 slim = tf.contrib.slim
 flags = tf.app.flags
-
+VH_INPUTS_DIR = os.getenv('VH_INPUTS_DIR')
 FLAGS = flags.FLAGS
 
-flags.DEFINE_string('checkpoint_path', None, 'Checkpoint path')
+flags.DEFINE_string('checkpoint_path', '/valohai/inputs/Logs/model.ckpt-100', 'Checkpoint path')
 
-flags.DEFINE_string('export_path', None,
+flags.DEFINE_string('export_path', '/valohai/outputs/frozen_inference_graph.pb',
                     'Path to output Tensorflow frozen graph.')
 
 flags.DEFINE_integer('num_classes', 21, 'Number of classes.')
@@ -75,7 +75,7 @@ _RAW_OUTPUT_NAME = 'RawSemanticPredictions'
 # Output name of the exported probabilities.
 _OUTPUT_PROB_NAME = 'SemanticProbabilities'
 _RAW_OUTPUT_PROB_NAME = 'RawSemanticProbabilities'
-
+image_folder = os.path.join(VH_INPUTS_DIR, 'Checkpoint-path','model.ckpt-100')
 
 def _create_input_tensors():
   """Creates and prepares input tensors for DeepLab model.
