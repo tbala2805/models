@@ -122,8 +122,6 @@
       - name: export_path
         type: string
         default: /Logs/frozen_inference_graph.pb
-      - name: checkpoint_path
-        default: azure://sampledata/Logs/model.ckpt
 - pipeline:
     name: Convert and train
     nodes:
