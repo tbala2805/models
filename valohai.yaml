@@ -116,10 +116,10 @@
       - name: num_classes
         type: integer
         default: 3
-      - name: Frozen-Graph-path
+      - name: export_path
         type: string
         default: /Logs/frozen_inference_graph.pb
-      - name: Checkpoint-path
+      - name: checkpoint_path
         default: azure://sampledata/Logs/model.ckpt
 - pipeline:
     name: Convert and train
