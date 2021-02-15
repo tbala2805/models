@@ -122,7 +122,7 @@ def main(unused_argv):
 
     model_options = common.ModelOptions(
         outputs_to_num_classes={common.OUTPUT_TYPE: FLAGS.num_classes},
-        crop_size=FLAGS.crop_size,
+        crop_size=[int(sz) for sz in FLAGS.crop_size],
         atrous_rates=FLAGS.atrous_rates,
         output_stride=FLAGS.output_stride)
 
