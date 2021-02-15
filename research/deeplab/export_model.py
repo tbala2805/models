@@ -38,7 +38,7 @@ flags.DEFINE_integer('num_classes', 21, 'Number of classes.')
 
 # flags.DEFINE_multi_integer('crop_size', [513, 513],
 #                            'Crop size [height, width].')
-flags.DEFINE_string('crop_size', [513, 513], 'Crop size [height, width].')
+flags.DEFINE_list('crop_size', [513, 513], 'Crop size [height, width].')
 # For `xception_65`, use atrous_rates = [12, 24, 36] if output_stride = 8, or
 # rates = [6, 12, 18] if output_stride = 16. For `mobilenet_v2`, use None. Note
 # one could use different atrous_rates/output_stride during training/evaluation.
@@ -62,9 +62,9 @@ flags.DEFINE_integer(
 flags.DEFINE_bool('save_inference_graph', False,
                   'Save inference graph in text proto.')
 
-FLAGS.crop_size = FLAGS.crop_size.split(",")
-print("**********************************")
-print(FLAGS.crop_size, type(FLAGS.crop_size))
+# FLAGS.crop_size = FLAGS.crop_size.split(",")
+# print("**********************************")
+# print(FLAGS.crop_size, type(FLAGS.crop_size))
 # Input name of the exported model.
 _INPUT_NAME = 'ImageTensor'
 
