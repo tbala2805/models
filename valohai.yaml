@@ -110,12 +110,8 @@
         type: integer
         default: 4
       - name: crop_size
-        type: integer
-        default: 513
-        description: "Image crop size [height, width]"
-      - name: crop_size
-        type: integer
-        default: 513
+        type: string
+        default: 513,513
         description: "Image crop size [height, width]"
       - name: num_classes
         type: integer
