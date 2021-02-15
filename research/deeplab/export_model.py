@@ -61,7 +61,7 @@ flags.DEFINE_integer(
 
 flags.DEFINE_bool('save_inference_graph', False,
                   'Save inference graph in text proto.')
-
+FLAGS.crop_size = FLAGS.crop_size.split(",")
 # Input name of the exported model.
 _INPUT_NAME = 'ImageTensor'
 
