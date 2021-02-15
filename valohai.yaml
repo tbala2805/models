@@ -95,9 +95,6 @@
     image: tensorflow/tensorflow:1.15.4-gpu-py3
     command:
         - python research/deeplab/export_model.py --atrous_rates=6 --atrous_rates=12 --atrous_rates=18 {parameters}
-    inputs:
-      - name: Checkpoint-path
-        default: azure://sampledata/Logs/model.ckpt
     parameters:
       - name: logtostderr
         type: flag
@@ -122,6 +119,8 @@
       - name: Frozen-Graph-path
         type: string
         default: /Logs/frozen_inference_graph.pb
+      - name: Checkpoint-path
+        default: azure://sampledata/Logs/model.ckpt
 - pipeline:
     name: Convert and train
     nodes:
