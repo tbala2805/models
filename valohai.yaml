@@ -89,6 +89,38 @@
       - name: train_logdir
         type: string
         default: "/valohai/repository/trainlog/"
+- step:
+    name: Save Frozen Graph
+    description: Converts model checkpoints to frozen graph
+    image: tensorflow/tensorflow:1.15.4-gpu-py3
+    command:
+        - python research/deeplab/export_model.py --atrous_rates=6 --atrous_rates=12 --atrous_rates=18 {parameters}
+    inputs:
+      - name: Checkpoint-path
+        default: azure://sampledata/Logs/model.ckpt
+      - name: Frozen-Graph-path
+        default: azure://sampledata/Logs/frozen_inference_graph.pb
+    parameters:
+      - name: logtostderr
+        type: flag
+        default: True
+        pass-as: --logtostderr={v}
+      - name: model_variant
+        type: string
+        default: "xception_65"
+      - name: output_stride
+        type: integer
+        default: 16
+      - name: decoder_output_stride
+        type: integer
+        default: 4
+      - name: crop_size
+        type: string
+        default: "513,513"
+        description: "Image crop size [height, width]"
+      - name: num_classes
+        type: integer
+        default: 3
 - pipeline:
     name: Convert and train
     nodes:
