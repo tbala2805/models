@@ -100,8 +100,8 @@ def _create_input_tensors():
   resized_image, image, _ = input_preprocess.preprocess_image_and_label(
       image,
       label=None,
-      crop_height=crop_size[0],
-      crop_width=crop_size[1],
+      crop_height=FLAGS.crop_size[0],
+      crop_width=FLAGS.crop_size[1],
       min_resize_value=FLAGS.min_resize_value,
       max_resize_value=FLAGS.max_resize_value,
       resize_factor=FLAGS.resize_factor,
