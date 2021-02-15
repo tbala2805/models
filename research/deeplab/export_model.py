@@ -182,7 +182,7 @@ def main(unused_argv):
 
     dirname = os.path.dirname(FLAGS.export_path)
     tf.gfile.MakeDirs(dirname)
-    graph_def = tf.Graph().as_graph_def(add_shapes=True)#get_default_graph()
+    graph_def = tf.get_default_graph().as_graph_def(add_shapes=True)#get_default_graph()
     freeze_graph.freeze_graph_with_def_protos(
         graph_def,
         saver.as_saver_def(),
