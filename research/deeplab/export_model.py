@@ -199,6 +199,6 @@ def main(unused_argv):
 
 
 if __name__ == '__main__':
-  flags.mark_flag_as_required('checkpoint_path')
+#   flags.mark_flag_as_required('checkpoint_path')
   flags.mark_flag_as_required('export_path')
   tf.app.run()
