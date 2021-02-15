@@ -98,8 +98,6 @@
     inputs:
       - name: Checkpoint-path
         default: azure://sampledata/Logs/model.ckpt
-      - name: Frozen-Graph-path
-        default: azure://sampledata/Logs/frozen_inference_graph.pb
     parameters:
       - name: logtostderr
         type: flag
@@ -121,6 +119,9 @@
       - name: num_classes
         type: integer
         default: 3
+      - name: Frozen-Graph-path
+        type: string
+        default: /Logs/frozen_inference_graph.pb
 - pipeline:
     name: Convert and train
     nodes:
