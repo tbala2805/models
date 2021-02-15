@@ -38,7 +38,7 @@ flags.DEFINE_integer('num_classes', 21, 'Number of classes.')
 
 # flags.DEFINE_multi_integer('crop_size', [513, 513],
 #                            'Crop size [height, width].')
-flags.DEFINE_string('crop_size', [513, 513], 'Crop size [height, width].')
+flags.DEFINE_string('crop_size', "513, 513", 'Crop size [height, width].')
 # For `xception_65`, use atrous_rates = [12, 24, 36] if output_stride = 8, or
 # rates = [6, 12, 18] if output_stride = 16. For `mobilenet_v2`, use None. Note
 # one could use different atrous_rates/output_stride during training/evaluation.
