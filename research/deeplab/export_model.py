@@ -186,7 +186,7 @@ def main(unused_argv):
     freeze_graph.freeze_graph_with_def_protos(
         graph_def,
         saver.as_saver_def(),
-        FLAGS.checkpoint_path,
+        checkpoint_path,
         _OUTPUT_NAME + ',' + _OUTPUT_PROB_NAME,
         restore_op_name=None,
         filename_tensor_name=None,
