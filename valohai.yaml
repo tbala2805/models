@@ -94,10 +94,15 @@
     description: Converts model checkpoints to frozen graph
     image: tensorflow/tensorflow:1.15.4-gpu-py3
     command:
-        - python research/deeplab/export_model.py --atrous_rates=6 --atrous_rates=12 --atrous_rates=18 {parameters}
+      - export PYTHONPATH=$PYTHONPATH:`pwd`:`pwd`/research/slim:`pwd`/research
+      - pip install -r requirements.txt
+      - mkdir /valohai/outputs/Logs
+      - mkdir trainlog
+      - tar -xvzf /valohai/inputs/checkpoint-path/checkpoints.tar.gz -C /valohai/repository/trainlog/
+      - python research/deeplab/export_model.py {parameters}
     inputs:
       - name: checkpoint-path
-        default: /valohai/inputs/Checkpoint-path/model.ckpt-100
+        default: azure://sampledatavalohai/sampledata/data/01EY5/01EY5YHQYRT70D8Q390Q4A0K2B/output-79/checkpoints.tar.gz
     parameters:
       - name: logtostderr
         type: flag
@@ -121,15 +126,32 @@
         default: 3
       - name: export_path
         type: string
-        default: /Logs/frozen_inference_graph.pb
+        default: /valohai/outputs/frozen_inference_graph.pb
 - pipeline:
-    name: Convert and train
+    name: TCSSample
     nodes:
+      - name: convert-node
+        type: execution
+        step: Convert Mask to GrayScale
       - name: load-node
         type: execution
         step: Load data and convert
+        override:
+          inputs:
+            - name: Label-Folder
       - name: train-node
         type: execution
         step: Train DeepLab model
+        override:
+          inputs:
+            - name: tfrecords
+      - name: save-node
+        type: execution
+        step: Save Frozen Graph
+        override: 
+          inputs:
+            - name: checkpoint-path
     edges:
+      - [convert-node.output.Output-Directory/*, load-node.input.Label-Folder]
       - [load-node.output.tfrecords.zip, train-node.input.tfrecords]
+      - [train-node.output.*, save-node.input.checkpoint-path]
