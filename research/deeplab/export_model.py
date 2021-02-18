@@ -30,7 +30,8 @@ VH_INPUTS_DIR = os.getenv('VH_INPUTS_DIR')
 FLAGS = flags.FLAGS
 
 # flags.DEFINE_string('checkpoint_path', '/valohai/inputs/Logs/model.ckpt-100', 'Checkpoint path')
-checkpoint_path = os.path.join(VH_INPUTS_DIR, 'checkpoint-path','model.ckpt-100')
+# checkpoint_path = os.path.join(VH_INPUTS_DIR, 'checkpoint-path','model.ckpt-100')
+checkpoint_path = os.path.join('/valohai/repository/trainlog/')
 flags.DEFINE_string('export_path', '/valohai/outputs/frozen_inference_graph.pb',
                     'Path to output Tensorflow frozen graph.')
 
@@ -186,7 +187,7 @@ def main(unused_argv):
     freeze_graph.freeze_graph_with_def_protos(
         graph_def,
         saver.as_saver_def(),
-        checkpoint_path,
+        tf.train.latest_checkpoint(checkpoint_path),
         _OUTPUT_NAME + ',' + _OUTPUT_PROB_NAME,
         restore_op_name=None,
         filename_tensor_name=None,
