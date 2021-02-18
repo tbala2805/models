@@ -181,7 +181,7 @@ def main(unused_argv):
     saver = tf.compat.v1.train.Saver(tf.compat.v1.all_variables())
 
     dirname = os.path.dirname(FLAGS.export_path)
-    tf.io.gfile.MakeDirs(dirname)
+    tf.io.gfile.makedirs(dirname)
     graph_def = tf.Graph().as_graph_def(add_shapes=True)#get_default_graph()
     freeze_graph.freeze_graph_with_def_protos(
         graph_def,
