@@ -37,6 +37,7 @@ from tensorflow.python.platform import tf_logging as logging
 import time
 import os
 import json
+import tarfile
 
 slim = tf.contrib.slim
 flags = tf.app.flags
