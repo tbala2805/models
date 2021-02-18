@@ -524,7 +524,14 @@ def main(unused_argv):
           summary_op=summary_op,
           save_summaries_secs=FLAGS.save_summaries_secs,
           save_interval_secs=FLAGS.save_interval_secs)
+    OUTPUTS_DIR = os.getenv('VH_OUTPUTS_DIR', None)
 
+    checkpoints = tarfile.open(os.path.join(OUTPUTS_DIR, 'checkpoints.tar.gz'), 'w:gz')
+    for dirpath, dirnames, filenames in os.walk(FLAGS.train_logdir):
+      for filename in filenames:
+          filepath   = os.path.join(dirpath, filename)
+          checkpoints.add(filepath, filename)
+    checkpoints.close()
 
 if __name__ == '__main__':
   flags.mark_flag_as_required('train_logdir')
