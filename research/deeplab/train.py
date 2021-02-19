@@ -68,7 +68,7 @@ flags.DEFINE_integer('task', 0, 'The task ID.')
 
 # Settings for logging.
 
-flags.DEFINE_string('train_logdir', OUTPUTS_DIR,
+flags.DEFINE_string('train_logdir', '/valohai/repository/trainlog/',
                     'Where the checkpoint and logs are stored.')
 
 flags.DEFINE_integer('log_steps', 10,
