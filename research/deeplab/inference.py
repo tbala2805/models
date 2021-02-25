@@ -134,9 +134,9 @@ FULL_COLOR_MAP = label_to_color_image(FULL_LABEL_MAP)
 print(type(FULL_COLOR_MAP))
 
 #Weight file path
-#model_path='/home/tcs/models/research/deeplab/datasets/ADE20K/exp/train_on_train_set/exp/t1000/frozen_inference_graph.pb'
-model_path='/home/tcs/models/research/deeplab/datasets/ADE20K/exp/train_on_train_set/exp/frozen_inference_graph.pb'
-#MODEL = DeepLabModel(download_path)
+
+model_path='models/research/deeplab/datasets/ADE20K/exp/train_on_train_set/exp/frozen_inference_graph.pb'
+
 MODEL = DeepLabModel(model_path)
 
 # print('model loaded successfully!')
@@ -146,7 +146,7 @@ list_of_dirs=[]
 
 #Input image path
 list_of_dirs.append("/home/tcs/models/research/deeplab/datasets/test/train/")
-# list_of_dirs.append(str(input("Enter the input directory : ")))
+
 Image_path=[]
 for check_dir in list_of_dirs:
   for file in os.listdir(check_dir):
@@ -171,7 +171,7 @@ def run_visualization(path,save_path):
 
 #output path
 out_dir="/home/tcs/models/research/deeplab/datasets/old/"
-# out_dir=str(input("Enter the output directory : "))
+
 
 if os.path.exists(out_dir):
   shutil.rmtree(out_dir)
