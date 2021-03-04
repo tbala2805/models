@@ -177,7 +177,7 @@ def run_visualization(original_im,save_path):
 out_dir=".output/"
 
 # Location of our model
-model_path = 'frozen_inference_graph.pb'
+model_path = 'frozen_inference_graph_1000.pb'
 
 # create and configure the app
 app = Flask(__name__, instance_relative_config=True)
