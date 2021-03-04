@@ -7,15 +7,16 @@
         - apt-get update
         - apt-get install ffmpeg libsm6 libxext6 -y
         - pip install opencv-python
+        - mkdir /valohai/outputs/
         - python research/deeplab/mask_to_grayscale.py
     inputs:
       - name: RGB-Masks-folder
-        default: azure://sampledata/rgbmasksfolder/*
+        default: azure://sampledatavalohai/sampledata/Mask Image/*
         keep-directories: suffix
       - name: class-index-file
-        default: azure://sampledata/
+        default: azure://sampledatavalohai/sampledata/class_list.txt
       - name: metadata-filepath
-        default: azure://sampledata/
+        default: azure://sampledatavalohai/sampledata/metadata.json
 - step:
     name: Load data and convert
     description: Converts data to TFRecord file format with Example protos
@@ -24,14 +25,27 @@
         - python research/deeplab/datasets/build_voc2012_data.py
     inputs:
       - name: Label-Folder
-        default: azure://sampledata/rgbmasksfolder/*
         keep-directories: suffix
       - name: Image-Folder
-        default: azure://sampledata/JpgImage/*
+        default: azure://sampledatavalohai/sampledata/Raw_Image/*
         keep-directories: suffix
       - name: Split-Folder
-        default: azure://sampledata/Splitfolder/*
+        default: azure://sampledatavalohai/sampledata/SplitFolder/*
         keep-directories: suffix
+- step:
+    name: Batch inference
+    image: tensorflow/tensorflow:1.15.4-gpu-py3
+    command:
+        - apt-get update
+        - apt-get install ffmpeg libsm6 libxext6 -y
+        - pip install -r requirements.txt
+        - mkdir /valohai/outputs/results
+        - python research/deeplab/batch_inference.py
+    inputs:
+      - name: model
+        default: datum://0177d826-de0c-f542-57b1-883f9c9ad5ba
+      - name: test-images
+        default: azure://sampledatavalohai/sampledata/data/01EY5/01EY5YHQYRT70D8Q390Q4A0K2B/upload/6_gtFine_labelIds.png
 - step:
     name: Train DeepLab model
     image: tensorflow/tensorflow:1.15.4-gpu-py3
@@ -42,7 +56,7 @@
         - python research/deeplab/train.py --atrous_rates=6 --atrous_rates=12 --atrous_rates=18 {parameters}
     inputs:
       - name: tfrecords
-        default: azure://tcsvalohai/deeplab/data/01ERE/01EREM82KQF8DNWGJT3GNM3Q35/upload/tfrecords.zip
+        default: azure://sampledatavalohai/sampledata/data/01EY5/01EY5YHQYRT70D8Q390Q4A0K2B/output-29/tfrecords.zip
     parameters:
       - name: logtostderr
         type: flag
@@ -102,8 +116,11 @@
       - python research/deeplab/export_model.py {parameters}
     inputs:
       - name: checkpoint-path
-        default: azure://sampledatavalohai/sampledata/data/01EY5/01EY5YHQYRT70D8Q390Q4A0K2B/output-79/checkpoints.tar.gz
+        default: datum://0177d3ab-28eb-093e-3d22-67ab3616374a
     parameters:
+      - name: checkpoint_path
+        type: string
+        default: "/valohai/repository/trainlog/"
       - name: logtostderr
         type: flag
         default: True
@@ -117,16 +134,23 @@
       - name: decoder_output_stride
         type: integer
         default: 4
-      - name: crop_size
-        type: string
-        default: 513,513
-        description: "Image crop size [height, width]"
       - name: num_classes
         type: integer
         default: 3
       - name: export_path
         type: string
         default: /valohai/outputs/frozen_inference_graph.pb
+
+- endpoint:
+    name: predict-deeplab
+    description: returns image
+    image: drazend/car-deployment:latest
+    server-command: python research/deeplab/predict.py
+    files:
+      - name: model
+        path: frozen_inference_graph.pb
+    port: 8000
+
 - pipeline:
     name: TCSSample
     nodes:
@@ -136,9 +160,6 @@
       - name: load-node
         type: execution
         step: Load data and convert
-        override:
-          inputs:
-            - name: Label-Folder
       - name: train-node
         type: execution
         step: Train DeepLab model
@@ -152,6 +173,37 @@
           inputs:
             - name: checkpoint-path
     edges:
-      - [convert-node.output.Output-Directory/*, load-node.input.Label-Folder]
+      - [convert-node.output.*, load-node.input.Label-Folder]
       - [load-node.output.tfrecords.zip, train-node.input.tfrecords]
       - [train-node.output.*, save-node.input.checkpoint-path]
+- pipeline:
+    name: TCSSample with deployment
+    nodes:
+      - name: convert-node
+        type: execution
+        step: Convert Mask to GrayScale
+      - name: load-node
+        type: execution
+        step: Load data and convert
+      - name: train-node
+        type: execution
+        step: Train DeepLab model
+        override:
+          inputs:
+            - name: tfrecords
+      - name: save-node
+        type: execution
+        step: Save Frozen Graph
+        override: 
+          inputs:
+            - name: checkpoint-path
+      - name: deploy-node
+        type: deployment
+        deployment: test
+        endpoints:
+          - predict-deeplab
+    edges:
+      - [convert-node.output.*, load-node.input.Label-Folder]
+      - [load-node.output.tfrecords.zip, train-node.input.tfrecords]
+      - [train-node.output.*, save-node.input.checkpoint-path]
+      - [save-node.output.*.pb, deploy-node.file.predict-deeplab.model]
