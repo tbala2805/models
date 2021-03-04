@@ -137,7 +137,7 @@ print(type(FULL_COLOR_MAP))
 
 model_path='models/research/deeplab/datasets/ADE20K/exp/train_on_train_set/exp/frozen_inference_graph.pb'
 
-MODEL = DeepLabModel(model_path)
+MODEL = DeepLabModel('frozen_inference_graph.pb')
 
 # print('model loaded successfully!')
 
@@ -145,11 +145,12 @@ valid_images_ext=[".jpg",".png",".jpeg"]
 list_of_dirs=[]
 
 #Input image path
-list_of_dirs.append("/home/tcs/models/research/deeplab/datasets/test/train/")
+list_of_dirs.append("datasets/images/")
 
 Image_path=[]
 for check_dir in list_of_dirs:
   for file in os.listdir(check_dir):
+    print(file)
     for ext in valid_images_ext:
       if file.endswith(ext):
         Image_path.append(os.path.join(check_dir,file))
@@ -170,7 +171,7 @@ def run_visualization(path,save_path):
   vis_segmentation(MODEL,resized_im, seg_map,save_path)
 
 #output path
-out_dir="/home/tcs/models/research/deeplab/datasets/old/"
+out_dir=".output/"
 
 
 if os.path.exists(out_dir):
