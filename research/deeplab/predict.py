@@ -141,8 +141,8 @@ def vis_segmentation(MODEL,image,seg_map,prediction_path=None):
 
 
 LABEL_NAMES = np.asarray([
-   'Background', 'Ego Vehicle','Tree', 'Field - Untilled-unplanted/harvested', 'Field - Tilled-unplanted', 'Fence' ,'Building'
-    'Bale', 'Windrow'
+ 'Background','Priority I - Tree', 'Field - Untilled-unplanted/harvested', 'Machine - Tractor', 'Bale' ,'Windrow'
+
 ])
  
 FULL_LABEL_MAP = np.arange(len(LABEL_NAMES)).reshape(len(LABEL_NAMES), 1)
