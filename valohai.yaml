@@ -148,7 +148,7 @@
     server-command: python research/deeplab/predict.py
     files:
       - name: model
-        path: frozen_inference_graph.pb
+        path: frozen_inference_graph_1000.pb
     port: 8000
 
 - pipeline:
