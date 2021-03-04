@@ -128,7 +128,7 @@ def create_segmentation(rgb_images_dir, class_index_file, img_output_dir , metad
 rgb_images_dir = os.path.join(VH_INPUTS_DIR, 'RGB-Masks-folder')
 class_index_file = os.path.join(VH_INPUTS_DIR, 'class-index-file','class_list.txt')
 metadata_file_path = os.path.join(VH_INPUTS_DIR,'metadata-filepath', 'metadata.json')
-img_output_dir = os.path.join(VH_OUTPUTS_DIR, 'Output-Directory')
+img_output_dir = VH_OUTPUTS_DIR
 # img_output_dir = VH_OUTPUTS_DIR
 
 import time 
