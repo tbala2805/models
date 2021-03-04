@@ -47,7 +47,7 @@ class DeepLabModel(object):
 
   OUTPUT_TENSOR_NAME = ['SemanticProbabilities:0','SemanticPredictions:0']
   INPUT_SIZE = 513
-  FROZEN_GRAPH_NAME = 'frozen_inference_graph.pb'
+  FROZEN_GRAPH_NAME = 'frozen_inference_graph_1000.pb'
   
   def __init__(self, frozen_graph_path):
     """Creates and loads pretrained deeplab model."""
