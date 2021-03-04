@@ -1,0 +1,32 @@
+<!doctype html>
+<title>{% block title %}{% endblock %} - Flaskr</title>
+<style>
+* {
+    font-family: 'Verdana';
+    color: #02373f
+}
+input[type=submit] {
+    padding: 10px;
+    background: #02373f;
+    color: #ffffff;
+}
+
+.flash {
+    font-weight: bold;
+    color: red;
+}
+
+</style>
+<nav>
+  <h1>MlOps Deployment Sample</h1>
+
+</nav>
+<section class="content">
+  <header>
+    {% block header %}{% endblock %}
+  </header>
+  {% for message in get_flashed_messages() %}
+    <div class="flash">{{ message }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</section>
