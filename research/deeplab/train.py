@@ -165,10 +165,10 @@ flags.DEFINE_string('tf_initial_checkpoint', None,
                     'The initial checkpoint in tensorflow format.')
 
 # Set to False if one does not want to re-use the trained classifier weights.
-flags.DEFINE_boolean('initialize_last_layer', True,
+flags.DEFINE_boolean('initialize_last_layer', False,
                      'Initialize the last layer.')
 
-flags.DEFINE_boolean('last_layers_contain_logits_only', False,
+flags.DEFINE_boolean('last_layers_contain_logits_only', True,
                      'Only consider logits as last layers or not.')
 
 flags.DEFINE_integer('slow_start_step', 0,
