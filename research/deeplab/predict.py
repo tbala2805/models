@@ -30,7 +30,38 @@ import json
 
 # if dl.token_expired():
 #     dl.login()
-
+meta_json= {
+    "2": {
+        "gray_scale_value": 2,
+        "label_name": "Machine - Tractor",
+        "label_colour": "#1e51fa"
+    },
+    "1": {
+        "gray_scale_value": 1,
+        "label_name": "Priority I - Tree",
+        "label_colour": "#727501"
+    },
+    "0": {
+        "gray_scale_value": 0,
+        "label_name": "Background",
+        "label_colour": "#3bd993"
+    },
+    "5": {
+        "gray_scale_value": 5,
+        "label_name": "Field - Untilled-unplanted/harvested",
+        "label_colour": "#3db126"
+    },
+    "3": {
+        "gray_scale_value": 3,
+        "label_name": "Bale",
+        "label_colour": "#6e4801"
+    },
+    "4": {
+        "gray_scale_value": 4,
+        "label_name": "Windrow",
+        "label_colour": "#b3a844"
+    }
+}
 ALLOWED_EXTENSIONS = {'jpeg', 'jpg', 'png'}
 def allowed_file(filename):
     return '.' in filename and \
@@ -89,25 +120,48 @@ class DeepLabModel(object):
           np.savetxt(f, x)
 
       return resized_image, pred_seg_map
-
-
-def create_pascal_label_colormap():
+     
+def create_label_colormap():
   """Creates a label colormap used in PASCAL VOC segmentation benchmark.
 
   Returns:
     A Colormap for visualizing segmentation results.
   """
-  colormap = np.zeros((256, 3), dtype=int)
-  ind = np.arange(256, dtype=int)
-
-  for shift in reversed(range(8)):
-    for channel in range(3):
-      colormap[:, channel] |= ((ind >> channel) & 1) << shift
-    ind >>= 3
-  print("shift",shift)
-  print("channel",channel)
-  #print("colormap",colormap)
+  colormap = []
+ 
+  
+#   with open(metadata_file_path,'r') as read_json:
+  data = json.load(meta_json)
+  for i in range(len(data)):
+   label_data = data[str(i)]
+   hex = label_data["label_colour"]
+   hex =  hex.lstrip('#')
+          #map = []
+          #map.append(list(int(hex[i:i+2], 16) for i in (0, 2, 4)))
+   map = list(int(hex[i:i+2], 16) for i in (0, 2, 4))
+   colormap.append(map)
+  colormap = np.array(colormap)
+          
   return colormap
+
+
+# def create_pascal_label_colormap():
+#   """Creates a label colormap used in PASCAL VOC segmentation benchmark.
+
+#   Returns:
+#     A Colormap for visualizing segmentation results.
+#   """
+#   colormap = np.zeros((256, 3), dtype=int)
+#   ind = np.arange(256, dtype=int)
+
+#   for shift in reversed(range(8)):
+#     for channel in range(3):
+#       colormap[:, channel] |= ((ind >> channel) & 1) << shift
+#     ind >>= 3
+#   print("shift",shift)
+#   print("channel",channel)
+#   #print("colormap",colormap)
+#   return colormap
 
 
 def label_to_color_image(label):
@@ -115,7 +169,7 @@ def label_to_color_image(label):
   if label.ndim != 2:
     raise ValueError('Expect 2-D input label')
 
-  colormap = create_pascal_label_colormap()
+  colormap = create_label_colormap()
 
   if np.max(label) >= len(colormap):
     raise ValueError('label value too large.')
