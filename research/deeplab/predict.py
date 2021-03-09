@@ -30,7 +30,7 @@ import json
 
 # if dl.token_expired():
 #     dl.login()
-meta_json= {
+data= {
     "2": {
         "gray_scale_value": 2,
         "label_name": "Machine - Tractor",
@@ -131,7 +131,7 @@ def create_label_colormap():
  
   
 #   with open(metadata_file_path,'r') as read_json:
-  data = json.load(meta_json)
+#   data = json.load(meta_json)
   for i in range(len(data)):
    label_data = data[str(i)]
    hex = label_data["label_colour"]
