@@ -242,35 +242,38 @@ app.config.from_mapping(
 
 # We create a route in our app to create a response for all requests on '/'
 @app.route('/', methods=(['GET', 'POST']))
+
 def predict():
   print("request")
   if request.method == 'POST':
     print("post")
-    imageFile = request.files.get('image')
-
-    # Make sure the file is one of the allowed filetypes
-    if not allowed_file(imageFile.filename) :
-        flash('File type not supported')
-        print("not supported")
-        return render_template('index.html')
-
-    img = Image.open(imageFile.stream)
-    img.load()
+    uploaded_files = request.files.getlist("image")
 
     global MODEL
     if not MODEL:
       print("loaded model")
       MODEL = DeepLabModel(model_path)
 
-    # Use our model to predict the class of the file sent over a form.
-    img = run_visualization(img, 'response.jpeg')
-    img_str = cv2.imencode('.jpeg', img)[1].tostring()
-    img_base64 = base64.b64encode(img_str).decode('ascii')
-    print("return result")
+    images = []
 
-    return render_template('index.html', image=img_base64)
+    for upload in uploaded_files :
+      # Make sure the file is one of the allowed filetypes
+      if not allowed_file(upload.filename) :
+          flash('One or multiple files was in a unsupported format.')
+          return render_template('index.html')
+
+      img = Image.open(upload.stream)
+      img.load()
+
+      # Use our model to predict the class of the file sent over a form.
+      img = run_visualization(img, 'response.jpeg')
+      img_str = cv2.imencode('.jpeg', img)[1].tostring()
+      img_base64 = base64.b64encode(img_str).decode('ascii')
+
+      images.append(img_base64)
+
+    return render_template('index.html', images=images)
   else :
-    print("basic")
     return render_template('index.html')
 
 app = manage_prefixes(app)
